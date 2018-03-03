@@ -1,0 +1,23 @@
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "petergdoyle/CentOS-7-x86_64-Minimal-1511"
+  config.ssh.insert_key = false
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize ["modifyvm", :id, "--cpuexecutioncap", "80"]
+    vb.memory = "1024"
+    vb.cpus = 2
+  end
+
+  config.vm.hostname = "mq-kafka-adapter.cleverfishsoftware.com"
+  #config.vm.network "public_network", ip: "192.168.1.84", bridge: "eno1"
+
+  config.vm.provision "shell", inline: <<-SHELL
+
+  yum -y clean all
+
+  yum -y install net-tools telnet wireshark htop bash-completion vim jq
+
+  yum -y update
+
+  SHELL
+end
