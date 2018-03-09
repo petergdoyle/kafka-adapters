@@ -18,8 +18,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class KafkaEventHubAdapterRunner {
 
-    private static final String KAFKA_CONSUMER_PROPERTIES = "consumer.properties";
-    private static final String EVENTHUBS_PROPERTIES = "eventhubs.properties";
+    public static final String KAFKA_CONSUMER_PROPERTIES = "consumer.properties";
+    public static final String EVENTHUBS_PROPERTIES = "eventhubs.properties";
 
     public static void main(String[] args) throws IOException {
 
@@ -72,7 +72,7 @@ public class KafkaEventHubAdapterRunner {
 
         final Properties ehProperties = new Properties();
         loadDefaults(ehProperties, EVENTHUBS_PROPERTIES);
-        replaceSystemOverrides(kafkaProperties);
+        replaceSystemOverrides(ehProperties);
         print(ehProperties);
 
         EventHubProducer ehProducer = null;
@@ -106,12 +106,12 @@ public class KafkaEventHubAdapterRunner {
         });
     }
 
-    private static Properties loadDefaults(final Properties props, final String resourceName) throws IOException {
+    public static Properties loadDefaults(final Properties props, final String resourceName) throws IOException {
         props.load(KafkaEventHubAdapterRunner.class.getClassLoader().getResourceAsStream(resourceName));
         return props;
     }
 
-    private static void replaceSystemOverrides(final Properties props) {
+    public static void replaceSystemOverrides(final Properties props) {
         for (Iterator<Object> it = props.keySet().iterator(); it.hasNext();) {
             String key = (String) it.next();
             String property = System.getProperty(key);
@@ -122,8 +122,8 @@ public class KafkaEventHubAdapterRunner {
         }
     }
 
-    private static void print(Properties kafkaProperties) {
-        kafkaProperties.list(System.out);
+    public static void print(Properties props) {
+        props.list(System.out);
     }
 
 }

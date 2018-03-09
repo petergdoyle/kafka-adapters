@@ -8,6 +8,7 @@ import com.microsoft.azure.eventhubs.EventHubClient;
 import com.microsoft.azure.eventhubs.EventHubException;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,6 +36,9 @@ public class EventHubProducer {
     public void send(final byte[] payload) throws EventHubException {
         EventData sendEvent = EventData.create(payload);
         ehClient.sendSync(sendEvent);
+    }
+    public void shutdown() {
+        ehClient.close();
     }
 
 }
