@@ -24,10 +24,10 @@ public class EventHubProducer {
     public EventHubProducer(final Properties props) throws EventHubException, IOException {
         this.props = props;
         connStr = new ConnectionStringBuilder()
-                .setNamespaceName((String) props.get("namespaceName")) // to target National clouds - use .setEndpoint(URI)
-                .setEventHubName((String) props.get("eventHubName"))
-                .setSasKeyName((String) props.get("sasKeyName"))
-                .setSasKey((String) props.get("sasKey"));
+                .setNamespaceName((String) props.get("ServiceBusNamespaceName")) // to target National clouds - use .setEndpoint(URI)
+                .setEventHubName((String) props.get("EventHubName"))
+                .setSasKeyName((String) props.get("SharedAccessKeyName"))
+                .setSasKey((String) props.get("SharedAccessKey"));
         executorService = Executors.newSingleThreadExecutor();
         ehClient = EventHubClient.createSync(connStr.toString(), executorService);
     }
