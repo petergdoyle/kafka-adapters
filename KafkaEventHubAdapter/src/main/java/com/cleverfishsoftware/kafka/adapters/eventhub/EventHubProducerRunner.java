@@ -34,12 +34,11 @@ public class EventHubProducerRunner {
 
         for (int i = 0; i < 100; i++) {
             try {
-                ehProducer.send(("test message "+i).getBytes("UTF-8"));
+                ehProducer.send(("test message " + i).getBytes("UTF-8"));
             } catch (EventHubException ex) {
                 ex.printStackTrace();
             }
         }
-        
 
     }
 

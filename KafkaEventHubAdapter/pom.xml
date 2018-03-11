@@ -24,6 +24,10 @@
             <artifactId>azure-eventhubs</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-eventhubs-eph</artifactId>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
