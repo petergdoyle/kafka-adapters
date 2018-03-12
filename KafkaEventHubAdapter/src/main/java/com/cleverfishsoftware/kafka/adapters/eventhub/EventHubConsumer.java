@@ -2,7 +2,7 @@
  */
 package com.cleverfishsoftware.kafka.adapters.eventhub;
 
-import com.microsoft.azure.eventhubs.ConnectionStringBuilder;
+import static com.cleverfishsoftware.kafka.adapters.eventhub.EventHubUtils.createEventProcessorHost;
 import com.microsoft.azure.eventprocessorhost.EventProcessorHost;
 import java.util.Properties;
 
@@ -11,17 +11,15 @@ import java.util.Properties;
  */
 public class EventHubConsumer {
 
-    private final EventProcessorHost host;
+    // EventProcessorHost is a Java class that simplifies receiving events from Event Hubs by managing persistent 
+    // checkpoints and parallel receives from those Event Hubs. Using EventProcessorHost,  you can split events 
+    // across multiple receivers, even when hosted in different nodes. This example shows how to use 
+    // EventProcessorHost for a single receiver.
+    private final EventProcessorHost epHost;
+    
 
     public EventHubConsumer(Properties ehProperties) {
-        ConnectionStringBuilder ehConnectionString = EventHubUtils.createConnectionStringBuilder(ehProperties);
-        host = new EventProcessorHost(
-				EventProcessorHost.createHostName(hostNamePrefix),
-				eventHubName,
-				consumerGroupName,
-				ehConnectionString.toString(),
-				storageConnectionString,
-				storageContainerName);
+        this.epHost = createEventProcessorHost(ehProperties);
     }
 
 }
