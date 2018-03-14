@@ -10,13 +10,14 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.CreateConnectionString;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
  */
 public class EventHubProducerAsync {
 
-    private final EventHubClient ehClient;
+    private final CompletableFuture<EventHubClient> ehClient;
     private final ExecutorService executorService;
 
     public EventHubProducerAsync(final Properties props) throws EventHubException, IOException {
@@ -24,16 +25,20 @@ public class EventHubProducerAsync {
 
         int cores = Runtime.getRuntime().availableProcessors();
         executorService = Executors.newFixedThreadPool(cores);
-        ehClient = EventHubClient.createSync(connectionString, executorService);
+        ehClient = EventHubClient.create(connectionString, executorService);
     }
 
-    public void send(final byte[] payload) throws EventHubException {
-        final EventData sendEvent = EventData.create(payload);
-        ehClient.send(sendEvent);
+    public void send(final byte[] payload) throws Exception {
+        final EventData eventData = EventData.create(payload);
+        ehClient.get().send(eventData);
     }
 
     public void shutdown() {
-        ehClient.close();
+        try {
+            ehClient.get().close();
+        } catch (Exception ex) {
+            
+        }
     }
 
 }

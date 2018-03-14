@@ -12,14 +12,14 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 /**
  *
  */
-public class RunnableKafkaEventHubAdapter implements Runnable {
+public class RunnableKafkaEventHubAdapterAsync implements Runnable {
 
     private final KafkaConsumer<String, String> consumer;
     private final List<String> topics;
     private final EventHubProducer ehProducer;
     private static final int CONSUMER_POLLING_RATE = 1000;
 
-    public RunnableKafkaEventHubAdapter(final Properties props, final List<String> topics, final EventHubProducer ehProducer) {
+    public RunnableKafkaEventHubAdapterAsync(final Properties props, final List<String> topics, final EventHubProducer ehProducer) {
         this.topics = new ArrayList<>(topics.size());
         topics.stream().forEach((each) -> {
             this.topics.add(each);
@@ -44,13 +44,13 @@ public class RunnableKafkaEventHubAdapter implements Runnable {
 //        But because it is sync and blocking, you will spend more time on waiting for the commit to be finished, 
 //        which leads to high latency.
 
-                    consumer.commitSync();
-                    
+//                    consumer.commitSync();
+
 //        If you are ok of certain data inconsistency and want to have low latency, choose commitAsync() because
 //        it will not wait to be finished. Instead, it will just send out the commit request and handle the response 
 //        from Kafka (success or failure) later, and meanwhile, your code will continue executing.
 
-//                    consumer.commitAsync();
+                    consumer.commitAsync();
                 }
             }
         } catch (Exception ex) {
