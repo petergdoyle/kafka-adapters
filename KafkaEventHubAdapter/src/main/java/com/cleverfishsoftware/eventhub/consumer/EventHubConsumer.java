@@ -1,6 +1,6 @@
 /*
  */
-package com.cleverfishsoftware.kafka.adapters.eventhub;
+package com.cleverfishsoftware.eventhub.consumer;
 
 import com.microsoft.azure.eventprocessorhost.EventProcessorHost;
 import java.util.Properties;
