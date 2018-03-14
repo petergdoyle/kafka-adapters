@@ -2,11 +2,9 @@
  */
 package com.cleverfishsoftware.kafka.adapters.eventhub;
 
-import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterRunner.EVENTHUBS_PROPERTIES;
-import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterRunner.loadDefaults;
-import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterRunner.replaceSystemOverrides;
 import java.io.IOException;
 import java.util.Properties;
+import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.LoadEventHubProperties;
 
 /**
  *
@@ -15,9 +13,7 @@ public class EventHubConsumerRunner {
 
     public static void main(String[] args) throws IOException {
 
-        final Properties ehProperties = new Properties();
-        loadDefaults(ehProperties, EVENTHUBS_PROPERTIES);
-        replaceSystemOverrides(ehProperties);
+        final Properties ehProperties = LoadEventHubProperties();
 
         EventHubConsumer ehConsumer = new EventHubConsumer(ehProperties);
 

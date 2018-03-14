@@ -6,20 +6,19 @@ import com.microsoft.azure.eventhubs.EventHubException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.LoadEventHubProperties;
+import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.LoadKafkaConsumerProperties;
+import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.Print;
 
 /**
  *
  */
 public class KafkaEventHubAdapterRunner {
-
-    public static final String KAFKA_CONSUMER_PROPERTIES = "consumer.properties";
-    public static final String EVENTHUBS_PROPERTIES = "eventhubs.properties";
 
     public static void main(String[] args) throws IOException {
 
@@ -43,10 +42,10 @@ public class KafkaEventHubAdapterRunner {
                     + "│       └── eventhubs.properties");
             System.err.println("");
             System.err.println("Check the defaults. Any overrides to those runtimes properties can be specified on the command line: ");
-            
+
             System.err.println("\n");
             System.err.println("Example:  java -DnamespaceName=ServiceBusNamespaceName23 -Dgroup.id=AzureEventHubAdapterGroup -Dbootstrap.servers=engine1:9091 -jar target/KafkaEventHubAdapter-1.0-SNAPSHOT.jar kafka-topic-1,kafka-topic-2 1");
-            
+
             System.err.println("\n\n");
             System.exit(1);
         }
@@ -65,15 +64,11 @@ public class KafkaEventHubAdapterRunner {
         }
         System.out.println("[INFO] Number of consumer threads: " + numConsumers);
 
-        final Properties kafkaProperties = new Properties();
-        loadDefaults(kafkaProperties, KAFKA_CONSUMER_PROPERTIES);
-        replaceSystemOverrides(kafkaProperties);
-        print(kafkaProperties);
+        final Properties kafkaProperties = LoadKafkaConsumerProperties();
+        Print(kafkaProperties);
 
-        final Properties ehProperties = new Properties();
-        loadDefaults(ehProperties, EVENTHUBS_PROPERTIES);
-        replaceSystemOverrides(ehProperties);
-        print(ehProperties);
+        final Properties ehProperties = LoadEventHubProperties();
+        Print(ehProperties);
 
         EventHubProducer ehProducer = null;
         try {
@@ -104,26 +99,6 @@ public class KafkaEventHubAdapterRunner {
                 }
             }
         });
-    }
-
-    public static Properties loadDefaults(final Properties props, final String resourceName) throws IOException {
-        props.load(KafkaEventHubAdapterRunner.class.getClassLoader().getResourceAsStream(resourceName));
-        return props;
-    }
-
-    public static void replaceSystemOverrides(final Properties props) {
-        for (Iterator<Object> it = props.keySet().iterator(); it.hasNext();) {
-            String key = (String) it.next();
-            String property = System.getProperty(key);
-            if (property != null) {
-                String oldValue = (String) props.put(key, property);
-                System.out.println("[WARN] overriding runtime property for " + key + " from " + oldValue + " to " + property);
-            }
-        }
-    }
-
-    public static void print(Properties props) {
-        props.list(System.out);
     }
 
 }

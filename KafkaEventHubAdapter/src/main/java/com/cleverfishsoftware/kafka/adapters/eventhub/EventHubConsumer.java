@@ -2,9 +2,9 @@
  */
 package com.cleverfishsoftware.kafka.adapters.eventhub;
 
-import static com.cleverfishsoftware.kafka.adapters.eventhub.EventHubUtils.createEventProcessorHost;
 import com.microsoft.azure.eventprocessorhost.EventProcessorHost;
 import java.util.Properties;
+import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.CreateEventProcessorHost;
 
 /**
  *
@@ -19,7 +19,7 @@ public class EventHubConsumer {
     
 
     public EventHubConsumer(Properties ehProperties) {
-        this.epHost = createEventProcessorHost(ehProperties);
+        this.epHost = CreateEventProcessorHost(ehProperties);
     }
 
 }
