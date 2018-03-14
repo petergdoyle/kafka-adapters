@@ -2,6 +2,8 @@
  */
 package com.cleverfishsoftware.eventhub.consumer;
 
+import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.CreateConnectionString;
+import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.CreateEventProcessorHost;
 import java.io.IOException;
 import java.util.Properties;
 import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.LoadEventHubProperties;
@@ -21,17 +23,15 @@ public class EventHubConsumerRunner {
 
         EventHubConsumer ehConsumer = new EventHubConsumer(ehProperties);
 
-        final String consumerGroupName = "$Default";
-        final String namespaceName = "----ServiceBusNamespaceName-----";
-        final String eventHubName = "----EventHubName-----";
-        final String sasKeyName = "-----SharedAccessSignatureKeyName-----";
-        final String sasKey = "---SharedAccessSignatureKey----";
+//        final String consumerGroupName = ehProperties.getProperty("ConsumerGroupName"); //"$Default";
+//        final String serviceBusNamespaceName = ehProperties.getProperty("ServiceBusNamespaceName"); //"----ServiceBusNamespaceName-----";
+//        final String eventHubName = ehProperties.getProperty("EventHubName"); //"----EventHubName-----";
+//        final String sasKeyName = ehProperties.getProperty("SharedAccessKeyName");//-----SharedAccessSignatureKeyName-----";
+//        final String sasKey = ehProperties.getProperty("SharedAccessKey"); //"---SharedAccessSignatureKey----";
+//
+//        final String storageConnectionString = ehProperties.getProperty("StorageConnectionString");
 
-        final String storageAccountName = "---StorageAccountName----";
-        final String storageAccountKey = "---StorageAccountKey----";
-        final String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=" + storageAccountKey;
-
-        EventProcessorHost host = new EventProcessorHost(eventHubName, consumerGroupName, eventHubConnectionString.toString(), storageConnectionString);
+        EventProcessorHost host = CreateEventProcessorHost(ehProperties);
 
         System.out.println("Registering host named " + host.getHostName());
         EventProcessorOptions options = new EventProcessorOptions();
@@ -54,7 +54,8 @@ public class EventHubConsumerRunner {
             host.unregisterEventProcessor();
 
             System.out.println("Calling forceExecutorShutdown");
-            host.forceExecutorShutdown(120);
+//            host..forceExecutorShutdown(120);
+
         } catch (Exception e) {
             System.out.println(e.toString());
             e.printStackTrace();
