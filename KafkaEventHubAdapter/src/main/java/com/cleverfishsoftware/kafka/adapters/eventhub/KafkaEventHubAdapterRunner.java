@@ -54,17 +54,6 @@ public class KafkaEventHubAdapterRunner {
         List<String> topics = Arrays.asList(topicValue.split(","));
         System.out.println("[INFO] Kafka topic(s) specified: " + topics);
 
-        int numConsumers = 1;  // this seems fine to start, if more are needed then implement something by convention or by other params
-//        final String numConsumersValue = args[1];
-//        int numConsumers = 0;
-//        try {
-//            numConsumers = Integer.parseInt(numConsumersValue);
-//        } catch (NumberFormatException ex) {
-//            System.err.println("[ERROR] Invalid value specified for 2nd parameter to specify number of consumers. Must be a numeric value");
-//            System.exit(1);
-//        }
-//        System.out.println("[INFO] Number of consumer threads: " + numConsumers);
-
         final Properties kafkaProperties = LoadKafkaConsumerProperties();
         Print(kafkaProperties);
 
@@ -78,10 +67,11 @@ public class KafkaEventHubAdapterRunner {
             System.err.println("[ERROR] " + ex.getMessage());
             System.exit(1);
         }
-
-        final ExecutorService executor = Executors.newFixedThreadPool(numConsumers);
+        
+        int cores = Runtime.getRuntime().availableProcessors();
+        final ExecutorService executor = Executors.newFixedThreadPool(cores);
         final List<RunnableKafkaEventHubAdapter> consumers = new ArrayList<>();
-        for (int i = 0; i < numConsumers; i++) {
+        for (int i = 0; i < cores; i++) {
             RunnableKafkaEventHubAdapter consumer = new RunnableKafkaEventHubAdapter(kafkaProperties, topics, ehProducer);
             consumers.add(consumer);
             executor.submit(consumer);
