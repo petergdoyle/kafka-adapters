@@ -22,7 +22,7 @@ public class KafkaEventHubAdapterRunner {
 
     public static void main(String[] args) throws IOException {
 
-        if (args.length < 2) {
+        if (args.length < 1) {
             System.err.println("\n\n");
             System.err.println("KafkaEventHubAdapter is used as a message bridge between Kafka and the Azure Event Hub. ");
             System.err.println("Messages will be consumed from a Kafka topic and projected onto an EventHub ");
