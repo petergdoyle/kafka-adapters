@@ -38,6 +38,14 @@ public class RunnableKafkaEventHubAdapter implements Runnable {
                     String value = record.value();
                     System.out.println("INFO reading " + value);
                     ehProducer.send(value.getBytes("UTF-8"));
+//        If  you have to ensure the data consistency, choose commitSync() because it will make sure that, 
+//        before doing any further actions, you will know whether the offset commit is successful or failed. 
+//        But because it is sync and blocking, you will spend more time on waiting for the commit to be finished, 
+//        which leads to high latency.
+                    consumer.commitSync();
+//        If you are ok of certain data inconsistency and want to have low latency, choose commitAsync() because
+//        it will not wait to be finished. Instead, it will just send out the commit request and handle the response 
+//        from Kafka (success or failure) later, and meanwhile, your code will continue executing.
                 }
             }
         } catch (Exception ex) {
