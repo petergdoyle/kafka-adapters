@@ -36,6 +36,7 @@ public class RunnableKafkaEventHubAdapter implements Runnable {
                 ConsumerRecords<String, String> records = consumer.poll(CONSUMER_POLLING_RATE);
                 for (ConsumerRecord<String, String> record : records) {
                     String value = record.value();
+                    System.out.println("INFO reading " + value);
                     ehProducer.send(value.getBytes("UTF-8"));
                 }
             }
