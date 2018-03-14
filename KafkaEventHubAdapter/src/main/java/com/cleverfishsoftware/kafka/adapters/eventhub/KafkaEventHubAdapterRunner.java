@@ -28,7 +28,7 @@ public class KafkaEventHubAdapterRunner {
             System.err.println("Messages will be consumed from a Kafka topic and projected onto an EventHub ");
             System.err.println("Configuration of both the Kafka and EventHub clients needs to be specified according to your environment");
             System.err.println("\n");
-            System.err.println("Usage:  java [-D OPTION=]... -jar target/KafkaEventHubAdapter-1.0-SNAPSHOT.jar [topics] [number of consumer threads]");
+            System.err.println("Usage:  java [-D OPTION=]... -jar target/KafkaEventHubAdapter-1.0-SNAPSHOT.jar [topics] [other options]");
             System.err.println("");
             System.err.println("Default Kafka Consumer runtime properties are specified under \n"
                     + "src\n"
@@ -54,15 +54,16 @@ public class KafkaEventHubAdapterRunner {
         List<String> topics = Arrays.asList(topicValue.split(","));
         System.out.println("[INFO] Kafka topic(s) specified: " + topics);
 
-        final String numConsumersValue = args[1];
-        int numConsumers = 0;
-        try {
-            numConsumers = Integer.parseInt(numConsumersValue);
-        } catch (NumberFormatException ex) {
-            System.err.println("[ERROR] Invalid value specified for 2nd parameter to specify number of consumers. Must be a numeric value");
-            System.exit(1);
-        }
-        System.out.println("[INFO] Number of consumer threads: " + numConsumers);
+        int numConsumers = 1;  // this seems fine to start, if more are needed then implement something by convention or by other params
+//        final String numConsumersValue = args[1];
+//        int numConsumers = 0;
+//        try {
+//            numConsumers = Integer.parseInt(numConsumersValue);
+//        } catch (NumberFormatException ex) {
+//            System.err.println("[ERROR] Invalid value specified for 2nd parameter to specify number of consumers. Must be a numeric value");
+//            System.exit(1);
+//        }
+//        System.out.println("[INFO] Number of consumer threads: " + numConsumers);
 
         final Properties kafkaProperties = LoadKafkaConsumerProperties();
         Print(kafkaProperties);
