@@ -1,2 +1,3 @@
 /KafkaEventHubAdapter/target/
 /KafkaEventHubAdapter/nbproject/
+docker-compose.yml

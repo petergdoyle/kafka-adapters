@@ -1,0 +1,6 @@
+version: '3'
+services:
+  kafka-eventhub-adapter-service:
+    image: mycompany/kafkaeventhubadapter
+    network_mode: host
+    command: "java -jar target/KafkaEventHubAdapter-1.0-SNAPSHOT.jar ${KAFKA_TOPIC}"
