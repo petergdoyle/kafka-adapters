@@ -13,40 +13,40 @@ import java.util.Properties;
  */
 public class KafkaEventHubAdapterUtils {
 
-    public static final String KAFKA_CONSUMER_PROPERTIES = "consumer.properties";
-    public static final String EVENTHUBS_PROPERTIES = "eventhubs.properties";
+    public static final String DEFAULT_KAFKA_CONSUMER_PROPERTIES = "consumer.properties";
+    public static final String DEFAULT_EVENTHUBS_PROPERTIES = "eventhubs.properties";
 
-    public static String CreateConnectionString(final Properties props) {
+    public static String CreateEventHubConnectionString(final Properties ehProperties) {
         return new ConnectionStringBuilder()
-                .setNamespaceName(props.getProperty("ServiceBusNamespaceName"))
+                .setNamespaceName(ehProperties.getProperty("ServiceBusNamespaceName"))
                 // to target National clouds - use .setEndpoint(URI)
-                .setEventHubName(props.getProperty("EventHubName"))
-                .setSasKeyName(props.getProperty("SharedAccessKeyName"))
-                .setSasKey(props.getProperty("SharedAccessKey"))
+                .setEventHubName(ehProperties.getProperty("EventHubName"))
+                .setSasKeyName(ehProperties.getProperty("SharedAccessKeyName"))
+                .setSasKey(ehProperties.getProperty("SharedAccessKey"))
                 .toString();
     }
 
-    public static EventProcessorHost CreateEventProcessorHost(final Properties props) {
+    public static EventProcessorHost CreateEventProcessorHost(final Properties ehProperties) {
         EventProcessorHost ehHost = new EventProcessorHost(
-                EventProcessorHost.createHostName(props.getProperty("StorageHostNamePrefix")),
-                props.getProperty("EventHubName"),
-                props.getProperty("ConsumerGroupName"),
-                CreateConnectionString(props),
-                props.getProperty("StorageConnectionString"),
-                props.getProperty("StorageContainerName"));
+                EventProcessorHost.createHostName(ehProperties.getProperty("StorageHostNamePrefix")),
+                ehProperties.getProperty("EventHubName"),
+                ehProperties.getProperty("ConsumerGroupName"),
+                CreateEventHubConnectionString(ehProperties),
+                ehProperties.getProperty("StorageConnectionString"),
+                ehProperties.getProperty("StorageContainerName"));
         return ehHost;
     }
 
     public static Properties LoadEventHubProperties() throws IOException {
         final Properties ehProperties = new Properties();
-        LoadDefaults(ehProperties, EVENTHUBS_PROPERTIES);
+        LoadDefaults(ehProperties, DEFAULT_EVENTHUBS_PROPERTIES);
         ReplaceSystemOverrides(ehProperties);
         return ehProperties;
     }
 
     public static Properties LoadKafkaConsumerProperties() throws IOException {
         final Properties kafkaProperties = new Properties();
-        LoadDefaults(kafkaProperties, KAFKA_CONSUMER_PROPERTIES);
+        LoadDefaults(kafkaProperties, DEFAULT_KAFKA_CONSUMER_PROPERTIES);
         ReplaceSystemOverrides(kafkaProperties);
         return kafkaProperties;
     }

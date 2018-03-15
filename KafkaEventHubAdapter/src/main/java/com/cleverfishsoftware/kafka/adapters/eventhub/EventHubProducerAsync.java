@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.CreateConnectionString;
 import java.util.concurrent.CompletableFuture;
+import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.CreateEventHubConnectionString;
 
 /**
  *
@@ -21,7 +21,7 @@ public class EventHubProducerAsync {
     private final ExecutorService executorService;
 
     public EventHubProducerAsync(final Properties props) throws EventHubException, IOException {
-        final String connectionString = CreateConnectionString(props);
+        final String connectionString = CreateEventHubConnectionString(props);
 
         int cores = Runtime.getRuntime().availableProcessors();
         executorService = Executors.newFixedThreadPool(cores);

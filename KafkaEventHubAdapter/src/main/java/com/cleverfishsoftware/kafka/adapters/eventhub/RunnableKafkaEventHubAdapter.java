@@ -2,9 +2,7 @@
  */
 package com.cleverfishsoftware.kafka.adapters.eventhub;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -14,54 +12,44 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
  */
 public class RunnableKafkaEventHubAdapter implements Runnable {
 
-    private final KafkaConsumer<String, String> consumer;
-    private final List<String> topics;
+    private final KafkaConsumer<String, String> kafkaConsumer;
+    private final List<String> kafkaTopics;
     private final EventHubProducer ehProducer;
     private static final int CONSUMER_POLLING_RATE = 1000;
 
-    public RunnableKafkaEventHubAdapter(final Properties props, final List<String> topics, final EventHubProducer ehProducer) {
-        this.topics = new ArrayList<>(topics.size());
-        topics.stream().forEach((each) -> {
-            this.topics.add(each);
-        });
-        this.consumer = new KafkaConsumer<>(props);
+    public RunnableKafkaEventHubAdapter(KafkaConsumer<String, String> kafkaConsumer, List<String> kafkaTopics, EventHubProducer ehProducer) {
+        this.kafkaConsumer = kafkaConsumer;
+        this.kafkaTopics = kafkaTopics;
         this.ehProducer = ehProducer;
     }
 
-    @Override
     public void run() {
         try {
-            consumer.subscribe(topics);
+            kafkaConsumer.subscribe(kafkaTopics);
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(CONSUMER_POLLING_RATE);
+                ConsumerRecords<String, String> records = kafkaConsumer.poll(CONSUMER_POLLING_RATE);
                 for (ConsumerRecord<String, String> record : records) {
                     String value = record.value();
                     System.out.println("INFO reading " + value);
                     ehProducer.send(value.getBytes("UTF-8"));
-                    
+
 //        If  you have to ensure the data consistency, choose commitSync() because it will make sure that, 
 //        before doing any further actions, you will know whether the offset commit is successful or failed. 
 //        But because it is sync and blocking, you will spend more time on waiting for the commit to be finished, 
 //        which leads to high latency.
+                    kafkaConsumer.commitSync();
 
-                    consumer.commitSync();
-                    
-//        If you are ok of certain data inconsistency and want to have low latency, choose commitAsync() because
-//        it will not wait to be finished. Instead, it will just send out the commit request and handle the response 
-//        from Kafka (success or failure) later, and meanwhile, your code will continue executing.
-
-//                    consumer.commitAsync();
                 }
             }
         } catch (Exception ex) {
             System.err.println(ex);
         } finally {
-            consumer.close();
+            kafkaConsumer.close();
         }
     }
 
     public void shutdown() {
-        consumer.wakeup();
+        kafkaConsumer.wakeup();
     }
 
 }

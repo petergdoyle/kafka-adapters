@@ -2,6 +2,7 @@
  */
 package com.cleverfishsoftware.kafka.adapters.eventhub;
 
+import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.CreateEventHubConnectionString;
 import com.microsoft.azure.eventhubs.EventHubException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,13 +15,15 @@ import java.util.concurrent.TimeUnit;
 import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.LoadEventHubProperties;
 import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.LoadKafkaConsumerProperties;
 import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.Print;
+import com.microsoft.azure.eventhubs.EventHubClient;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 /**
  *
  */
 public class KafkaEventHubAdapterRunner {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, EventHubException {
 
         if (args.length < 1) {
             System.err.println("\n\n");
@@ -59,33 +62,40 @@ public class KafkaEventHubAdapterRunner {
 
         final Properties ehProperties = LoadEventHubProperties();
         Print(ehProperties);
+        final String ehConnectionString = CreateEventHubConnectionString(ehProperties);
 
-        EventHubProducer ehProducer = null;
-        try {
-            ehProducer = new EventHubProducer(ehProperties);
-        } catch (EventHubException ex) {
-            System.err.println("[ERROR] " + ex.getMessage());
-            System.exit(1);
-        }
-        
+//        https://kafka.apache.org/0102/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html
+//         1. One Consumer Per Thread
+//
+//        A simple option is to give each thread its own consumer instance. Here are the pros and cons of this approach:
+//        PRO: It is the easiest to implement
+//        PRO: It is often the fastest as no inter-thread co-ordination is needed
+//        PRO: It makes in-order processing on a per-partition basis very easy to implement (each thread just processes messages in the order it receives them).
+//        CON: More consumers means more TCP connections to the cluster (one per thread). In general Kafka handles connections very efficiently so this is generally a small cost.
+//        CON: Multiple consumers means more requests being sent to the server and slightly less batching of data which can cause some drop in I/O throughput.
+//        CON: The number of total threads across all processes will be limited by the total number of partitions.
+//
         int cores = Runtime.getRuntime().availableProcessors();
-        final ExecutorService executor = Executors.newFixedThreadPool(cores);
-        final List<RunnableKafkaEventHubAdapter> consumers = new ArrayList<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(cores);
+        final List<RunnableKafkaEventHubAdapter> kehAdapterThreads = new ArrayList<>(cores);
         for (int i = 0; i < cores; i++) {
-            RunnableKafkaEventHubAdapter consumer = new RunnableKafkaEventHubAdapter(kafkaProperties, topics, ehProducer);
-            consumers.add(consumer);
-            executor.submit(consumer);
+            KafkaConsumer kafkaConsumer = new KafkaConsumer<>(kafkaProperties);
+            EventHubClient ehClient = EventHubClient.createSync(ehConnectionString, Executors.newSingleThreadExecutor());
+            EventHubProducer ehProducer = new EventHubProducer(ehClient);
+            RunnableKafkaEventHubAdapter kehAdapterThread = new RunnableKafkaEventHubAdapter(kafkaConsumer, topics, ehProducer);
+            kehAdapterThreads.add(kehAdapterThread);
+            executorService.submit(kehAdapterThread);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                consumers.stream().forEach((consumer) -> {
-                    consumer.shutdown();
+                kehAdapterThreads.stream().forEach((each) -> {
+                    each.shutdown();
                 });
-                executor.shutdown();
+                executorService.shutdown();
                 try {
-                    executor.awaitTermination(5000, TimeUnit.MILLISECONDS);
+                    executorService.awaitTermination(5000, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
                 }
             }
