@@ -2,7 +2,13 @@
  */
 package com.cleverfishsoftware.kafka.adapters.eventhub;
 
+import static com.cleverfishsoftware.kafka.adapters.eventhub.KafkaEventHubAdapterUtils.CreateEventHubConnectionString;
+import com.microsoft.azure.eventhubs.EventHubClient;
+import com.microsoft.azure.eventhubs.EventHubException;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.Executors;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -17,10 +23,10 @@ public class RunnableKafkaEventHubAdapter implements Runnable {
     private final EventHubProducer ehProducer;
     private static final int CONSUMER_POLLING_RATE = 1000;
 
-    public RunnableKafkaEventHubAdapter(KafkaConsumer<String, String> kafkaConsumer, List<String> kafkaTopics, EventHubProducer ehProducer) {
-        this.kafkaConsumer = kafkaConsumer;
+    public RunnableKafkaEventHubAdapter(final Properties kafkaProperties, final Properties ehProperties, final List<String> kafkaTopics) throws EventHubException, IOException {
+        this.kafkaConsumer = new KafkaConsumer(kafkaProperties);
+        this.ehProducer = new EventHubProducer(ehProperties);
         this.kafkaTopics = kafkaTopics;
-        this.ehProducer = ehProducer;
     }
 
     public void run() {

@@ -62,7 +62,6 @@ public class KafkaEventHubAdapterRunner {
 
         final Properties ehProperties = LoadEventHubProperties();
         Print(ehProperties);
-        final String ehConnectionString = CreateEventHubConnectionString(ehProperties);
 
 //        https://kafka.apache.org/0102/javadoc/org/apache/kafka/clients/consumer/KafkaConsumer.html
 //         1. One Consumer Per Thread
@@ -79,10 +78,7 @@ public class KafkaEventHubAdapterRunner {
         ExecutorService executorService = Executors.newFixedThreadPool(cores);
         final List<RunnableKafkaEventHubAdapter> kehAdapterThreads = new ArrayList<>(cores);
         for (int i = 0; i < cores; i++) {
-            KafkaConsumer kafkaConsumer = new KafkaConsumer<>(kafkaProperties);
-            EventHubClient ehClient = EventHubClient.createSync(ehConnectionString, Executors.newSingleThreadExecutor());
-            EventHubProducer ehProducer = new EventHubProducer(ehClient);
-            RunnableKafkaEventHubAdapter kehAdapterThread = new RunnableKafkaEventHubAdapter(kafkaConsumer, topics, ehProducer);
+            RunnableKafkaEventHubAdapter kehAdapterThread = new RunnableKafkaEventHubAdapter(kafkaProperties, ehProperties , topics);
             kehAdapterThreads.add(kehAdapterThread);
             executorService.submit(kehAdapterThread);
         }
